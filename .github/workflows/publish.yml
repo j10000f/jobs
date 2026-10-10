@@ -28,8 +28,12 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Install Chromium for Konstanz B-ITE listings
+        run: |
+          python -m pip install --disable-pip-version-check playwright==1.55.0
+          python -m playwright install --with-deps chromium
       - name: Check Python syntax
-        run: python -m py_compile scripts/build.py
+        run: python -m py_compile scripts/build.py scripts/university_sources.py
       - name: Fetch feeds and build static site
         run: python scripts/build.py
       - name: Configure GitHub Pages
