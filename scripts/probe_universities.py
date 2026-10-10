@@ -14,6 +14,15 @@ PAGES={
  "lausanne2":"https://www.unil.ch/emploi",
  "lausanne3":"https://www.unil.ch/carrieres",
 }
+
+PAGES.update({
+ "konstanz_js":"https://static.b-ite.com/jobs-api/loader-v1/api-loader-v1.min.js",
+ "uzh_widget":"https://ohws.prospective.ch/public/v2/careercenter/1002007/?lang=en",
+ "bern_js":"https://unibe.prospective.ch/careercenter/1001892/static/index-CtgvSgPP.js",
+ "unil_sf":"https://career5.successfactors.eu/career?company=universitdP&career_ns=job_listing_summary&navBarLevel=JOB_SEARCH",
+ "unil_jobs":"https://joblens.ch/unil",
+ "konstanz_main":"https://www.uni-konstanz.de/personalabteilung/stellenangebote-1/stellenangebote-der-universitaet-konstanz/",
+})
 class Links(HTMLParser):
  def __init__(self): super().__init__(); self.tags=[];self.current=None
  def handle_starttag(self,t,a):
@@ -33,6 +42,8 @@ for name,url in PAGES.items():
   with urlopen(Request(url,headers={"User-Agent":"Mozilla/5.0 (compatible; JobsMirror/1.0)","Accept":"text/html,*/*","Accept-Language":"de,en;q=0.8"}), timeout=22) as r:
    page=r.read(1300000).decode("utf-8","replace")
    print("STATUS",r.status,"FINAL",r.geturl(),"BYTES",len(page))
+   if name=="bern_js" or name=="konstanz_js":
+    for m in list(re.finditer(r"https?://[^\"\x27\s)]+|/api/[a-zA-Z0-9_/-]+|/public/v[0-9]+/[a-zA-Z0-9_/-]+",page))[:25]: print("API_HINT",repr(page[max(m.start()-35,0):min(m.end()+55,len(page))]))
   p=Links();p.feed(page)
   print("IFRAMES/FORMS/SCRIPTS",[(t,d) for t,d in p.tags if t in ("iframe","form","script","base")][:15])
   keys=["job","stellen","beruf","professor","vacanc","offre","poste","career","recruit","apply"]
