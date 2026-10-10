@@ -9,7 +9,13 @@ Daily GitHub Actions collector rendering public job feeds as static HTML (no Jav
 | eco-evo.html | EcoEvoJobSearcher weekly RSS (not faculty-only) |
 | tu-wien.html | Current TU Wien vacancies parsed from the embedded `JobList` JSON | 
 | tu-wien-gazette.html | Latest TISS Gazette metadata (fallback) |
-| status.json | Last run source counts, timestamps, errors |
+| konstanz.html | Konstanz B-ITE professorship widget rendered via Chromium |
+| hu-berlin.html | Stellenticket university/research listings; may include non-HU employers |
+| uzh.html | UZH official Prospective API, paginated |
+| unibe.html | University of Bern official Prospective API, paginated |
+| unibas.html | University of Basel official ATS listings, paginated |
+| unil.html | UNIL SuccessFactors original postings discovered via secondary joblens index; **partial coverage** |
+| status.json | Per-source counts, timestamp, errors and coverage limitations |
 
 **Directly monitored, without mirrors:** [IIASA onlyfy](https://iiasa.onlyfy.jobs/en) and [CSH Personio](https://csh.jobs.personio.com/?language=de). Both are readable through the ChatGPT web reader.
 
@@ -40,3 +46,8 @@ Direct GitHub content links (no GitHub Pages or JavaScript required):
 - [Source collection status](https://github.com/j10000f/jobs/blob/data/status.json)
 
 For the GitHub connector, use repository `j10000f/jobs`, ref `data`, and the root filename (e.g. `tu-wien.html` or `status.json`). Check `status.json` before interpreting missing or zero rows: an inaccessible upstream source is explicitly an error, not zero vacancies. The `data` branch is **generated automatically** and will overwrite manual edits there. The scraper/workflow source remains on `main`.
+
+### Additional Swiss/German sites
+
+The extra collectors address pages the web reader could not reliably extract. UZH and Bern use publicly served Prospective JSON endpoints (with all pages fetched). Basel uses the public application-form POST pagination. Humboldt Stellenticket exposes server-rendered university listings but also lists outside employers, so verify institutional attribution. Konstanz requires a Chromium-rendered B-ITE widget. Lausanne's original SAP SuccessFactors search is JavaScript-driven; the `unil.html` mirror uses a **third-party index solely for discovery**, retaining links to the original official UNIL advertisements. It is NOT guaranteed exhaustive or current: always verify with UNIL and cross-search official ads.
+
