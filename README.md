@@ -25,3 +25,18 @@ Collectors preserve source fields and rows when recognized; do not filter by car
 - [IIASA onlyfy](https://iiasa.onlyfy.jobs/en) — readable directly by ChatGPT's web reader.
 
 These two sites are deliberately excluded from the GitHub Pages collector and HTML index. Old `csh.html` or `iiasa.html` pages, if cached from earlier deployments, are not maintained.
+
+## GitHub repository snapshots (web-reader-independent)
+
+The same daily workflow also commits the generated plain HTML pages and `status.json` to an independently maintained **[`data` branch](https://github.com/j10000f/jobs/tree/data)**. This is a machine-readable mirror for ChatGPT's connected GitHub integration even if the `github.io` website cannot be opened by its web reader.
+
+Direct GitHub content links (no GitHub Pages or JavaScript required):
+
+- [University of Graz](https://github.com/j10000f/jobs/blob/data/uni-graz.html)
+- [TU Graz](https://github.com/j10000f/jobs/blob/data/tu-graz.html)
+- [EcoEvoJobs weekly feed](https://github.com/j10000f/jobs/blob/data/eco-evo.html)
+- [TU Wien current vacancies](https://github.com/j10000f/jobs/blob/data/tu-wien.html)
+- [TU Wien Gazette backup](https://github.com/j10000f/jobs/blob/data/tu-wien-gazette.html)
+- [Source collection status](https://github.com/j10000f/jobs/blob/data/status.json)
+
+For the GitHub connector, use repository `j10000f/jobs`, ref `data`, and the root filename (e.g. `tu-wien.html` or `status.json`). Check `status.json` before interpreting missing or zero rows: an inaccessible upstream source is explicitly an error, not zero vacancies. The `data` branch is **generated automatically** and will overwrite manual edits there. The scraper/workflow source remains on `main`.
