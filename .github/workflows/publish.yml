@@ -10,7 +10,7 @@ on:
     - cron: "17 5 * * *"
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -40,6 +40,30 @@ jobs:
         uses: actions/upload-pages-artifact@v4
         with:
           path: public
+      - name: Commit HTML and status to data branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          snapshot_dir="$(mktemp -d)"
+          cp -a public/. "$snapshot_dir/"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin data >/dev/null 2>&1; then
+            git fetch origin data
+            git switch --create data --track origin/data
+          else
+            git switch --orphan data
+          fi
+          # This branch is exclusively generated data, never hand-edited content.
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf -- {} +
+          cp -a "$snapshot_dir"/. .
+          git add --all
+          if git diff --cached --quiet; then
+            echo "Generated snapshot already up to date."
+          else
+            git commit -m "Update public job snapshots"
+            git push origin HEAD:data
+          fi
   deploy:
     needs: build
     runs-on: ubuntu-latest
