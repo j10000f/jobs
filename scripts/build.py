@@ -140,7 +140,7 @@ def tiss_rows(data,base):
     matches=re.findall(r"(?:/api/mbl/v\d+/id/|/mbl/.*?(?:id=|/id/))(\d+)",html_doc)
     if not matches:
         # Some overview links may have ID in their own URL.
-        matches=re.findall(r"(?:id=|/id/)(\d+)",url)
+        matches=re.findall(r"(?:id=|/id/|/anzeigen/)(\d+)",url)
     if not matches:
         return [{"issue":title,"issue_url":url,"json_status":"No public per-issue JSON ID located; Gazette metadata only"}]
     api=f"https://tiss.tuwien.ac.at/api/mbl/v22/id/{matches[0]}"
@@ -182,7 +182,14 @@ def main():
             raw=fetch(url)
             if kind=="json":rows=json_rows(raw)
             elif kind=="rss":rows=rss_rows(raw)
-            elif kind=="personio":rows=personio_rows(raw)
+            elif kind=="personio":
+                try:
+                    rows=personio_rows(raw)
+                except Exception as first:
+                    # Public Personio XML isn't always enabled; use the official HTML ATS.
+                    backup="https://csh.jobs.personio.com/"
+                    rows=onlyfy_rows(fetch(backup),backup)
+                    print("csh XML unavailable; HTML ATS fallback used:",str(first),flush=True)
             elif kind=="onlyfy":rows=onlyfy_rows(raw,url)
             elif kind=="tiss":rows=tiss_rows(raw,url)
             print(slug,len(rows),"rows",flush=True)
