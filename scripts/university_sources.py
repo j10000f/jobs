@@ -120,29 +120,22 @@ def hu_berlin_rows():
     for offset in range(0, 1000, 100):
         query = urlencode({"jobs_science[per_page]": 100, "jobs_science[offset]": offset})
         source = get_bytes(base + "?" + query).decode("utf-8", "replace")
+        anchors = AnchorReader()
+        anchors.feed(source)
         count = 0
-        for tr in re.findall(r"<tr\b[^>]*>.*?</tr>", source, re.I | re.S):
-            anchors = AnchorReader()
-            anchors.feed(tr)
-            candidates = []
-            for href, label in anchors.links:
-                link = urljoin(base, html.unescape(href))
-                match = re.search(r"/(?:de|en)/offers/(\d+)/", link)
-                if match and label and len(label) > 8:
-                    candidates.append((match.group(1), link, label))
-            if not candidates:
+        for href, label in anchors.links:
+            link = urljoin(base, html.unescape(href))
+            match = re.search(r"/(?:de|en)/offers/(\d+)/", link)
+            if not match or len(label) < 10 or not re.search(r"[A-Za-zÄÖÜäöüß]", label):
                 continue
-            job_id, link, label = max(candidates, key=lambda x: len(x[2]))
+            job_id = match.group(1)
             if job_id in seen:
-                continue
-            text = " ".join(html.unescape(re.sub(r"<[^>]+>", " ", tr)).split())
-            if not text:
                 continue
             seen.add(job_id)
             results.append({
-                "Id": job_id, "Title": label, "OriginalJobUrl": link,
-                "ListingRow": text[:500],
-                "EmployerNote": "Stellenticket university/research listings can include non-HU employers; verify employer",
+                "Id": job_id, "Title": label,
+                "OriginalJobUrl": link,
+                "EmployerNote": "Unfiltered Stellenticket list includes other employers. Verify employer in original ad.",
             })
             count += 1
         if count < 100:
