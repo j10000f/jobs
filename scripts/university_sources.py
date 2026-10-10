@@ -65,7 +65,13 @@ def prospective_rows(medium_id):
             if not identifier or identifier in seen:
                 continue
             seen.add(identifier)
-            # Avoid fabricating per-job URLs; index and job ID are retained for verification.
+            # Prospective provides a verified directlink in the public job payload.
+            entry = dict(entry)
+            links = entry.get("links")
+            if isinstance(links, dict) and isinstance(links.get("directlink"), str):
+                url = links["directlink"]
+                if url.startswith("https://"):
+                    entry["OriginalJobUrl"] = url
             rows.append(entry)
         if len(rows) >= total:
             break
