@@ -29,3 +29,13 @@ for name,url,method,body in cases:
  except Exception as e:print("FAIL",name,type(e).__name__,str(e),flush=True)
 
 # Public endpoint smoke test.
+
+print("== KONSTANZ BITE SCRIPT DETAILS ==")
+try:
+ with urlopen(Request("https://cs-assets.b-ite.com/uni-konstanz/jobs-api/main-listing-v5.js",headers={"User-Agent":"Mozilla/5.0"}),timeout=20) as r: js=r.read().decode("utf-8","replace")
+ for pat in ["apiUrl","api","jobs","fetch","request","localhost","b-ite.com","listing","url","params","client"]:
+  ms=list(re.finditer(re.escape(pat),js,re.I))
+  print("MATCHES",pat,len(ms))
+  for m in ms[-3:]:print("CTX",pat,repr(js[max(0,m.start()-120):min(len(js),m.end()+220)].replace("\n"," ")))
+ print("TAIL",repr(js[-1500:]))
+except Exception as e:print("Konstanz script fail",repr(e))
