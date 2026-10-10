@@ -4,6 +4,7 @@ from html.parser import HTMLParser
 from urllib.request import Request, urlopen
 from urllib.parse import urljoin, urlparse
 import re
+import json
 class Inspector(HTMLParser):
     def __init__(self):
         super().__init__()
@@ -38,6 +39,16 @@ def excerpts(text, label,patterns,max_occurrences=18):
             if count>=max_occurrences:return
 def main():
     html=request(URL)
+    pos=html.find('new JobList(')
+    found=html.find('{"RegionsViewModel"',pos)
+    if found<0:found=html.find('{"Jobs"',pos)
+    if found>=0:
+        model,end=json.JSONDecoder().raw_decode(html[found:])
+        print("MODEL_KEYS",list(model.keys()))
+        print("TOTAL_JOBS",model.get("TotalJobsCount"),"JOBS_LEN",len(model.get("Jobs",[])))
+        print("PAGINATION",repr(model.get("Pagination")))
+        print("FIRST_JOB",repr((model.get("Jobs") or [{}])[0]))
+    else:print("MODEL_JSON_NOT_FOUND")
     parser=Inspector();parser.feed(html)
     excerpts(html,"HTML-INIT",[r"new JobList",r"PopulateList",r"jobList",r"JobList",r"JobListing",r"ajax",r"Jobs.*Json",r"jobs.*Url"],25)
     print("HAS TABLE TR",html.count("<tr"),"HAS JOB LINKS",len(re.findall(r'/Job/\d+',html,re.I)))
