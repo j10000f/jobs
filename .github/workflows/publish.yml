@@ -49,7 +49,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           if git ls-remote --exit-code --heads origin data >/dev/null 2>&1; then
-            git fetch origin data
+            git fetch origin refs/heads/data:refs/remotes/origin/data
             git switch --create data --track origin/data
           else
             git switch --orphan data
