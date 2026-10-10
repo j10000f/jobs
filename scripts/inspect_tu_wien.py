@@ -39,6 +39,7 @@ def excerpts(text, label,patterns,max_occurrences=18):
 def main():
     html=request(URL)
     parser=Inspector();parser.feed(html)
+    excerpts(html,"HTML-INIT",[r"new JobList",r"PopulateList",r"jobList",r"JobList",r"JobListing",r"ajax",r"Jobs.*Json",r"jobs.*Url"],25)
     print("HAS TABLE TR",html.count("<tr"),"HAS JOB LINKS",len(re.findall(r'/Job/\d+',html,re.I)))
     print("FORMS",parser.forms)
     print("SCRIPTS",parser.scripts[:45])
@@ -49,6 +50,7 @@ def main():
         if urlparse(url).netloc not in ("jobs.tuwien.ac.at",):continue
         try:
             script=request(url,2_500_000)
+            if "/bundles/jobs/index?" in url:print("COMPLETE_JOB_SCRIPT",repr(script))
             excerpts(script,url,[r"/api/[A-Za-z_/\-]+",r"/Jobs?/[A-Za-z_/\-]+",r"GetJobs",r"GetJob",r"JobList",r"SearchJob",r"\.ajax\(",r"fetch\(",r"/api/",r"GetVacanc",r"JobsFilter"],14)
         except Exception as e: print("SCRIPT_ERROR",url,type(e).__name__,str(e)[:180])
 if __name__ == "__main__":main()
