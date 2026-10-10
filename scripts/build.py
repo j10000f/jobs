@@ -16,7 +16,8 @@ SOURCES = {
  "uni-graz": ("University of Graz — job postings", "https://personal.uni-graz.at/api/erec/public/job-postings", "json"),
  "tu-graz": ("TU Graz — job postings", "https://personal.tugraz.at/api/erec/public/job-postings", "json"),
  "eco-evo": ("EcoEvoJobs — weekly RSS", "https://calebcharpentier.com/EcoEvoJobSearcher/feed-week.xml", "rss"),
- "tu-wien": ("TU Wien — newest Gazette JSON (not a vacancy feed)", "https://tiss.tuwien.ac.at/mbl/main/uebersicht?fuer=mb", "tiss"),
+ "tu-wien": ("TU Wien — current job postings", "https://jobs.tuwien.ac.at/Jobs?culture=de", "tuwien"),
+ "tu-wien-gazette": ("TU Wien — Gazette metadata (backup)", "https://tiss.tuwien.ac.at/mbl/main/uebersicht?fuer=mb", "tiss"),
 }
 HEADERS={"User-Agent":"AcademicJobMirrors/1.0 (+https://github.com/j10000f/jobs)", "Accept":"text/html,application/json,application/xml,text/xml,application/rss+xml,*/*"}
 def fetch(url):
@@ -35,6 +36,36 @@ def json_rows(data):
     else: raise ValueError("JSON root not a list/object")
     if not all(isinstance(r,dict) for r in rows): raise ValueError("Unexpected JSON rows")
     return rows
+
+def tuwien_rows(data):
+    """Extract the server-rendered JavaScript model passed to new JobList(...)."""
+    page=data.decode("utf-8","replace")
+    call=re.search(r"\bnew\s+JobList\s*\(",page)
+    if not call:
+        raise ValueError("No JobList initialization found on TU Wien vacancies page")
+    decoder=json.JSONDecoder()
+    model=None
+    for candidate in re.finditer(r"\{\s*\"RegionsViewModel\"\s*:", page[call.end():]):
+        offset=call.end()+candidate.start()
+        try:
+            value,end=decoder.raw_decode(page[offset:])
+            if isinstance(value,dict) and isinstance(value.get("Jobs"),list):
+                model=value
+                break
+        except json.JSONDecodeError:
+            continue
+    if model is None:
+        raise ValueError("Unable to parse the embedded TU Wien JobList JSON")
+    rows=model["Jobs"]
+    if not all(isinstance(row,dict) for row in rows):
+        raise ValueError("Invalid embedded job object")
+    expected=model.get("TotalJobsCount")
+    if isinstance(expected,int) and expected!=len(rows):
+        raise ValueError(f"Partial TU Wien job list: embedded {len(rows)} of {expected} advertised jobs")
+    pagination=model.get("Pagination") or {}
+    if pagination.get("IsPagination") and pagination.get("TotalPages",1)>1:
+        raise ValueError("TU Wien paginated results; unable to assert complete vacancy extraction")
+    return [{**row,"OriginalJobUrl":f"https://jobs.tuwien.ac.at/Job/{row['Id']}"} for row in rows]
 
 def xml_tag(tag):
     if tag.startswith("{"):
@@ -144,6 +175,7 @@ def main():
         try:
             raw=fetch(url)
             if kind=="json":rows=json_rows(raw)
+            elif kind=="tuwien":rows=tuwien_rows(raw)
             elif kind=="rss":rows=rss_rows(raw)
             elif kind=="tiss":rows=tiss_rows(raw,url)
             print(slug,len(rows),"rows",flush=True)
