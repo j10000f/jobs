@@ -1,37 +1,37 @@
 {
-  "generated_utc": "2026-10-10T11:14:28+00:00",
+  "generated_utc": "2026-10-10T11:15:03+00:00",
   "sources": {
     "uni-graz": {
       "source": "https://personal.uni-graz.at/api/erec/public/job-postings",
-      "retrieved_at_utc": "2026-10-10T11:14:28+00:00",
+      "retrieved_at_utc": "2026-10-10T11:15:03+00:00",
       "ok": true,
       "count": 11,
       "error": null
     },
     "tu-graz": {
       "source": "https://personal.tugraz.at/api/erec/public/job-postings",
-      "retrieved_at_utc": "2026-10-10T11:14:28+00:00",
+      "retrieved_at_utc": "2026-10-10T11:15:03+00:00",
       "ok": true,
       "count": 28,
       "error": null
     },
     "eco-evo": {
       "source": "https://calebcharpentier.com/EcoEvoJobSearcher/feed-week.xml",
-      "retrieved_at_utc": "2026-10-10T11:14:28+00:00",
+      "retrieved_at_utc": "2026-10-10T11:15:03+00:00",
       "ok": true,
       "count": 46,
       "error": null
     },
     "tu-wien": {
       "source": "https://jobs.tuwien.ac.at/Jobs?culture=de",
-      "retrieved_at_utc": "2026-10-10T11:14:28+00:00",
+      "retrieved_at_utc": "2026-10-10T11:15:03+00:00",
       "ok": true,
       "count": 5,
       "error": null
     },
     "tu-wien-gazette": {
       "source": "https://tiss.tuwien.ac.at/mbl/main/uebersicht?fuer=mb",
-      "retrieved_at_utc": "2026-10-10T11:14:28+00:00",
+      "retrieved_at_utc": "2026-10-10T11:15:03+00:00",
       "ok": true,
       "count": 1,
       "error": null
