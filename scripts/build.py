@@ -10,6 +10,7 @@ import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from pathlib import Path
 from html.parser import HTMLParser
+from university_sources import prospective_rows, basel_rows, hu_berlin_rows, lausanne_rows, konstanz_rows
 
 ROOT = Path("public")
 SOURCES = {
@@ -18,6 +19,12 @@ SOURCES = {
  "eco-evo": ("EcoEvoJobs — weekly RSS", "https://calebcharpentier.com/EcoEvoJobSearcher/feed-week.xml", "rss"),
  "tu-wien": ("TU Wien — current job postings", "https://jobs.tuwien.ac.at/Jobs?culture=de", "tuwien"),
  "tu-wien-gazette": ("TU Wien — Gazette metadata (backup)", "https://tiss.tuwien.ac.at/mbl/main/uebersicht?fuer=mb", "tiss"),
+ "konstanz": ("University of Konstanz — Professorships (B-ITE)", "https://stellen.uni-konstanz.de/site/v2/de/professuren.html", "konstanz"),
+ "hu-berlin": ("Humboldt Berlin — Stellenticket research and university adverts", "https://hu-berlin.stellenticket.de/de/offers/", "hu-berlin"),
+ "uzh": ("University of Zurich — Prospective vacancies", "https://ohws.prospective.ch/public/v2/careercenter/1002007/?lang=en", "uzh"),
+ "unibe": ("University of Bern — Prospective vacancies", "https://unibe.prospective.ch/?lang=en", "unibe"),
+ "unibas": ("University of Basel — all advertised vacancies", "https://jobs.unibas.ch/?lang=en", "unibas"),
+ "unil": ("University of Lausanne — UNIL original adverts via secondary index", "https://joblens.ch/unil", "unil"),
 }
 HEADERS={"User-Agent":"AcademicJobMirrors/1.0 (+https://github.com/j10000f/jobs)", "Accept":"text/html,application/json,application/xml,text/xml,application/rss+xml,*/*"}
 def fetch(url):
@@ -178,12 +185,20 @@ def main():
             elif kind=="tuwien":rows=tuwien_rows(raw)
             elif kind=="rss":rows=rss_rows(raw)
             elif kind=="tiss":rows=tiss_rows(raw,url)
+            elif kind=="konstanz":rows=konstanz_rows()
+            elif kind=="hu-berlin":rows=hu_berlin_rows()
+            elif kind=="uzh":rows=prospective_rows("1002007")
+            elif kind=="unibe":rows=prospective_rows("1001892")
+            elif kind=="unibas":rows=basel_rows()
+            elif kind=="unil":rows=lausanne_rows()
             print(slug,len(rows),"rows",flush=True)
         except Exception as e:
             problem=type(e).__name__+": "+str(e)
             print(slug,"FAILED",problem,flush=True)
-        states[slug]={"source":url,"retrieved_at_utc":time,"ok":problem is None,"count":len(rows) if rows is not None else None,"error":problem}
+        states[slug]={"source":url,"retrieved_at_utc":time,"ok":problem is None,"count":len(rows) if rows is not None else None,"error":problem,"coverage":("secondary UNIL joblens index only; verify official SuccessFactors ad" if slug=="unil" else "Stellenticket university jobs include outside employers" if slug=="hu-berlin" else "official source, verify original advert")}
         note="<p class='meta'>Source: <a href='"+html.escape(url,quote=True)+"'>"+html.escape(url)+"</a> · Checked "+html.escape(time)+" · "+("Records: "+str(len(rows)) if rows is not None else "Retrieval failed")+"</p>"
+        if slug=="unil":note+="<p>Secondary, potentially incomplete UNIL index; each job links to an original SAP SuccessFactors advertisement. Do not infer no openings if absent.</p>"
+        if slug=="hu-berlin":note+="<p>Stellenticket also includes employers other than HU Berlin; inspect each original ad for the recruiting institution.</p>"
         if kind=="tiss":note+="<p>Gazette issue metadata, not a complete vacancy list; read advertised positions in the official linked issue.</p>"
         if problem: note+="<p class='fail'>Source unavailable or could not be parsed: "+html.escape(problem)+". This does NOT mean zero vacancies.</p>"
         (ROOT/(slug+".html")).write_text(document(title,note+(table(rows) if rows is not None else "")),encoding="utf-8")
