@@ -7,10 +7,10 @@ Daily GitHub Actions collector rendering public job feeds as static HTML (no Jav
 | uni-graz.html | Uni Graz public JSON API, original fields |
 | tu-graz.html | TU Graz public JSON API, original fields |
 | eco-evo.html | EcoEvoJobSearcher weekly RSS (not faculty-only) |
-| csh.html | CSH Personio XML (only if employer enabled feed) |
-| iiasa.html | IIASA onlyfy public HTML job links (not JSON) |
 | tu-wien.html | Latest TISS Gazette JSON where available (not a full vacancy API) |
 | status.json | Last run source counts, timestamps, errors |
+
+**Directly monitored, without mirrors:** [IIASA onlyfy](https://iiasa.onlyfy.jobs/en) and [CSH Personio](https://csh.jobs.personio.com/?language=de). Both are readable through the ChatGPT web reader.
 
 **Enable GitHub Pages:** Repository Settings → Pages → Build and deployment → Source: **GitHub Actions**.
 
