@@ -27,3 +27,5 @@ for name,url,method,body in cases:
   elif name.startswith("konstanz"): print("TEXT",name,repr(txt[:1100]),flush=True)
   else: print("LINK_COUNTS",name,"jobs",len(re.findall(r"/offers/\\d+|class=.job-open.|/offene-stellen/|class=.job-title.",txt,re.I)),"snippet",repr(txt[txt.find("job"):txt.find("job")+100]),flush=True)
  except Exception as e:print("FAIL",name,type(e).__name__,str(e),flush=True)
+
+# Public endpoint smoke test.
