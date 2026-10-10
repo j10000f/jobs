@@ -16,8 +16,6 @@ SOURCES = {
  "uni-graz": ("University of Graz — job postings", "https://personal.uni-graz.at/api/erec/public/job-postings", "json"),
  "tu-graz": ("TU Graz — job postings", "https://personal.tugraz.at/api/erec/public/job-postings", "json"),
  "eco-evo": ("EcoEvoJobs — weekly RSS", "https://calebcharpentier.com/EcoEvoJobSearcher/feed-week.xml", "rss"),
- "csh": ("Complexity Science Hub — Personio vacancies", "https://csh.jobs.personio.com/xml?language=en", "personio"),
- "iiasa": ("IIASA — onlyfy vacancies", "https://iiasa.onlyfy.jobs/en", "onlyfy"),
  "tu-wien": ("TU Wien — newest Gazette JSON (not a vacancy feed)", "https://tiss.tuwien.ac.at/mbl/main/uebersicht?fuer=mb", "tiss"),
 }
 HEADERS={"User-Agent":"AcademicJobMirrors/1.0 (+https://github.com/j10000f/jobs)", "Accept":"text/html,application/json,application/xml,text/xml,application/rss+xml,*/*"}
@@ -78,23 +76,6 @@ def rss_rows(data):
     else: raise ValueError("Not RSS/Atom")
     return [xml_row(el) for el in items]
 
-def personio_rows(data):
-    root=ET.fromstring(data)
-    items=root.findall(".//position")
-    if not items and root.tag!="positions":
-        raise ValueError("Not a recognized Personio XML positions feed")
-    rows=[]
-    for position in items:
-        row={}
-        for child in position:
-            key=xml_tag(child.tag)
-            if key=="jobDescriptions":
-                # Preserve nested jobDescription field text, including multiple blocks
-                row[key]= " | ".join(xml_value(x) for x in child)
-            else: row[key]=xml_value(child)
-        rows.append(row)
-    return rows
-
 class Links(HTMLParser):
     def __init__(self):
         super().__init__()
@@ -106,24 +87,6 @@ class Links(HTMLParser):
     def handle_endtag(self,tag):
         if tag=="a" and self.current is not None:
             self.links.append(self.current); self.current=None
-
-def onlyfy_rows(data,base):
-    parser=Links();parser.feed(data.decode("utf-8","replace"))
-    rows=[]; seen=set()
-    for item in parser.links:
-        link=urllib.parse.urljoin(base,item["href"])
-        title=" ".join(item["text"].split())
-        if not title or link in seen: continue
-        # onlyfy's individual job URLs contain /job/ or /jobs/ or /position/
-        path=urllib.parse.urlsplit(link).path.lower()
-        if not any(marker in path for marker in ("/job/","/jobs/","/position/","/vacancies/")):continue
-        if link.rstrip("/")==base.rstrip("/"): continue
-        seen.add(link)
-        rows.append({"title":title,"link":link})
-    if not rows:
-        # A valid page without recognized links is not a confirmed empty job board.
-        raise ValueError("No job links recognized in onlyfy HTML; site markup may have changed")
-    return rows
 
 def tiss_rows(data,base):
     p=Links();p.feed(data.decode("utf-8","replace"))
@@ -182,15 +145,6 @@ def main():
             raw=fetch(url)
             if kind=="json":rows=json_rows(raw)
             elif kind=="rss":rows=rss_rows(raw)
-            elif kind=="personio":
-                try:
-                    rows=personio_rows(raw)
-                except Exception as first:
-                    # Public Personio XML isn't always enabled; use the official HTML ATS.
-                    backup="https://csh.jobs.personio.com/"
-                    rows=onlyfy_rows(fetch(backup),backup)
-                    print("csh XML unavailable; HTML ATS fallback used:",str(first),flush=True)
-            elif kind=="onlyfy":rows=onlyfy_rows(raw,url)
             elif kind=="tiss":rows=tiss_rows(raw,url)
             print(slug,len(rows),"rows",flush=True)
         except Exception as e:
