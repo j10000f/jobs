@@ -61,12 +61,15 @@ def main() -> None:
             message = EmailMessage()
             message["From"] = username
             message["To"] = username
-            message["Subject"] = f"Academic ecology opportunities — week of {issue_date}"
+            html_body = filename.read_text(encoding="utf-8")
+            is_test = "<!-- DIGEST_DELIVERY_TEST -->" in html_body
+            prefix = "TEST — " if is_test else ""
+            message["Subject"] = f"{prefix}Academic ecology opportunities — week of {issue_date}"
             message.set_content(
                 f"Academic ecology opportunities — week of {issue_date}\n\n"
                 f"Read the HTML digest: {url}\n"
             )
-            message.add_alternative(filename.read_text(encoding="utf-8"), subtype="html")
+            message.add_alternative(html_body, subtype="html")
             smtp.send_message(message)
             print(f"Sent {filename} to {username}")
 
