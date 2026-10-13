@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - scripts/**
+      - digests/*.html
       - .github/workflows/publish.yml
   schedule:
     - cron: "17 5 * * *"
@@ -36,6 +37,13 @@ jobs:
         run: python -m py_compile scripts/build.py scripts/university_sources.py
       - name: Fetch feeds and build static site
         run: python scripts/build.py
+      - name: Include saved digest HTML in Pages site
+        shell: bash
+        run: |
+          mkdir -p public/digests
+          if compgen -G 'digests/*.html' > /dev/null; then
+            cp digests/*.html public/digests/
+          fi
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
         with:
