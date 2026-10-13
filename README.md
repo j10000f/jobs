@@ -51,37 +51,31 @@ For the GitHub connector, use repository `j10000f/jobs`, ref `data`, and the roo
 
 The extra collectors address pages the web reader could not reliably extract. UZH and Bern use publicly served Prospective JSON endpoints (with all pages fetched). Basel uses the public application-form POST pagination. Humboldt Stellenticket exposes server-rendered university listings but also lists outside employers, so verify institutional attribution. Konstanz requires a Chromium-rendered B-ITE widget. Lausanne's original SAP SuccessFactors search is JavaScript-driven; the `unil.html` mirror uses a **third-party index solely for discovery**, retaining links to the original official UNIL advertisements. It is NOT guaranteed exhaustive or current: always verify with UNIL and cross-search official ads.
 
-## Archived ecology digests and email delivery
+## Stored ecology digests and email delivery
 
-Commit the **complete HTML email body** to `main` at `digests/YYYY-MM-DD.html` (for example,
-`digests/2026-10-19.html`). The file becomes a public webpage at:
+The scheduled ecology faculty jobs task saves the complete self-contained HTML email
+on the **main** branch as `digests/YYYY-MM-DD.html`, for example
+`digests/2026-10-19.html`. The stored HTML files are **not deployed to GitHub
+Pages**. The existing GitHub Pages site is reserved for the independent job-source
+mirrors in `public/`.
 
-`https://j10000f.github.io/jobs/digests/YYYY-MM-DD.html`
+The [digest-email workflow](.github/workflows/email-digests.yml) triggers on
+pushes to `main` affecting `digests/*.html`; the
+[SMTP sender](scripts/send_new_digests.py) checks the actual Git additions and
+sends **only newly added, correctly dated** HTML files. Edits to existing
+digests do not resend them. A new digest triggers email without waiting for
+any Pages deployment. Each file is emailed with the subject
+`Academic ecology opportunities — week of YYYY-MM-DD`, preserving its HTML
+and generating a full, readable plain-text alternative. Explicitly tagged
+delivery-test files receive a `TEST — ` subject prefix instead.
 
-The [Pages publishing workflow](.github/workflows/publish.yml) now copies the saved
-`digests/*.html` files into the published `public/digests/` directory. It runs
-on changes to those files as well as on the existing daily schedule.
+Configure the Actions **variable** `MAIL_USERNAME` to the Gmail sender and
+recipient address, and the Actions **secret** `MAIL_PASSWORD` to a Gmail app
+password. The workflow sends via encrypted SMTP to `smtp.gmail.com:465`; no
+credentials are stored in the repository. Google two-step verification and
+app-password support are required. Failures are reported in Actions logs.
 
-The separate [digest-email workflow](.github/workflows/email-digests.yml) runs
-only on pushes to `main` that include changed `digests/*.html` paths. It
-compares the Git commits before and after the push and emails **only newly
-added** files with valid `YYYY-MM-DD.html` filenames, not edits to existing
-files. The HTML file is sent as the email's HTML content, with a plain-text
-link to its public archive; the subject is
-`Academic ecology opportunities — week of YYYY-MM-DD`. If multiple new dated
-digests are added in a single push, each receives a separate email.
-
-Configure the repository's **Actions variable** `MAIL_USERNAME` with your Gmail
-address (used as both the sender and recipient) and the **Actions secret**
-`MAIL_PASSWORD` with a Gmail app password. The email workflow uses Gmail SMTP
-over TLS on `smtp.gmail.com:465`; credentials are not committed to GitHub.
-A Google account with two-step verification and app-password support is needed.
-Failures appear in the Actions job logs.
-
-**Important:** These HTML digests are public. Do not include sensitive or
-private information in them. Editing a previously added file updates the Pages
-copy but does not send it again. Re-running a successful email workflow run
-manually may send duplicate messages. Publication and SMTP sending run in
-independent workflows, so the email can arrive before the corresponding Pages
-deployment finishes.
-
+This repository is **public**, so the committed digest files can still be
+viewed in GitHub's source browser, even though they are no longer published
+under `j10000f.github.io/jobs/digests/`. Do not commit private information.
+Manually re-running a successful workflow can resend email.
