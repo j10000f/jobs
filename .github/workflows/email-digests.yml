@@ -1,0 +1,32 @@
+name: Email newly added ecology digests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'digests/*.html'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: email-ecology-digests-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  email-new-digests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out complete commit history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Email only newly added dated HTML digests
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          GITHUB_SHA: ${{ github.sha }}
+          MAIL_USERNAME: ${{ vars.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+        run: python3 scripts/send_new_digests.py
