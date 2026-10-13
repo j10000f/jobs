@@ -34,7 +34,7 @@ jobs:
           python -m pip install --disable-pip-version-check playwright==1.55.0
           python -m playwright install --with-deps chromium
       - name: Check Python syntax
-        run: python -m py_compile scripts/build.py scripts/university_sources.py
+        run: python -m py_compile scripts/build.py scripts/university_sources.py scripts/send_new_digests.py
       - name: Fetch feeds and build static site
         run: python scripts/build.py
       - name: Include saved digest HTML in Pages site
