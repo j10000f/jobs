@@ -6,6 +6,7 @@ run can resend messages, so do not manually rerun successful delivery jobs.
 """
 from datetime import date
 from email.message import EmailMessage
+from html.parser import HTMLParser
 import os
 from pathlib import Path
 import re
@@ -15,7 +16,54 @@ import subprocess
 
 DIGEST_NAME = re.compile(r"^digests/(\d{4}-\d{2}-\d{2})\.html$")
 NULL_SHA = "0" * 40
-BASE_URL = "https://j10000f.github.io/jobs/digests/"
+
+
+
+class PlainTextDigest(HTMLParser):
+    """Extract readable text and official links for the plain-text MIME fallback."""
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.parts = []
+        self.links = []
+        self.skipping = 0
+
+    def handle_starttag(self, tag, attrs):
+        if tag in ("head", "style", "script"):
+            self.skipping += 1
+            return
+        if self.skipping:
+            return
+        if tag in ("h1", "h2", "h3", "h4", "div", "p", "li", "br"):
+            self.parts.append("\n")
+        if tag == "a":
+            self.links.append(dict(attrs).get("href", ""))
+
+    def handle_endtag(self, tag):
+        if tag in ("head", "style", "script"):
+            self.skipping = max(0, self.skipping - 1)
+            return
+        if self.skipping:
+            return
+        if tag == "a" and self.links:
+            link = self.links.pop()
+            if link.startswith(("https://", "http://")):
+                self.parts.append(f" ({link})")
+        if tag in ("h1", "h2", "h3", "h4", "div", "p", "li"):
+            self.parts.append("\n")
+
+    def handle_data(self, data):
+        if not self.skipping:
+            self.parts.append(data)
+
+    def as_text(self):
+        return re.sub(r"\n(?:[ \t]*\n){2,}", "\n\n", "".join(self.parts)).strip()
+
+
+def plain_text_fallback(html_body: str) -> str:
+    parser = PlainTextDigest()
+    parser.feed(html_body)
+    return parser.as_text() + "\n"
 
 
 def added_digests(before: str, after: str) -> list[tuple[str, Path]]:
@@ -57,7 +105,6 @@ def main() -> None:
     with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=ssl.create_default_context(), timeout=30) as smtp:
         smtp.login(username, password)
         for issue_date, filename in digests:
-            url = f"{BASE_URL}{issue_date}.html"
             message = EmailMessage()
             message["From"] = username
             message["To"] = username
@@ -65,10 +112,7 @@ def main() -> None:
             is_test = "<!-- DIGEST_DELIVERY_TEST -->" in html_body
             prefix = "TEST — " if is_test else ""
             message["Subject"] = f"{prefix}Academic ecology opportunities — week of {issue_date}"
-            message.set_content(
-                f"Academic ecology opportunities — week of {issue_date}\n\n"
-                f"Read the HTML digest: {url}\n"
-            )
+            message.set_content(plain_text_fallback(html_body))
             message.add_alternative(html_body, subtype="html")
             smtp.send_message(message)
             print(f"Sent {filename} to {username}")
