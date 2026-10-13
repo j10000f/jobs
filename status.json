@@ -1,9 +1,9 @@
 {
-  "generated_utc": "2026-10-13T08:55:20+00:00",
+  "generated_utc": "2026-10-13T08:56:44+00:00",
   "sources": {
     "uni-graz": {
       "source": "https://personal.uni-graz.at/api/erec/public/job-postings",
-      "retrieved_at_utc": "2026-10-13T08:55:20+00:00",
+      "retrieved_at_utc": "2026-10-13T08:56:44+00:00",
       "ok": true,
       "count": 12,
       "error": null,
@@ -11,7 +11,7 @@
     },
     "tu-graz": {
       "source": "https://personal.tugraz.at/api/erec/public/job-postings",
-      "retrieved_at_utc": "2026-10-13T08:55:20+00:00",
+      "retrieved_at_utc": "2026-10-13T08:56:44+00:00",
       "ok": true,
       "count": 28,
       "error": null,
@@ -19,7 +19,7 @@
     },
     "eco-evo": {
       "source": "https://calebcharpentier.com/EcoEvoJobSearcher/feed-week.xml",
-      "retrieved_at_utc": "2026-10-13T08:55:20+00:00",
+      "retrieved_at_utc": "2026-10-13T08:56:44+00:00",
       "ok": true,
       "count": 30,
       "error": null,
@@ -27,7 +27,7 @@
     },
     "tu-wien": {
       "source": "https://jobs.tuwien.ac.at/Jobs?culture=de",
-      "retrieved_at_utc": "2026-10-13T08:55:20+00:00",
+      "retrieved_at_utc": "2026-10-13T08:56:44+00:00",
       "ok": true,
       "count": 4,
       "error": null,
@@ -35,7 +35,7 @@
     },
     "tu-wien-gazette": {
       "source": "https://tiss.tuwien.ac.at/mbl/main/uebersicht?fuer=mb",
-      "retrieved_at_utc": "2026-10-13T08:55:20+00:00",
+      "retrieved_at_utc": "2026-10-13T08:56:44+00:00",
       "ok": true,
       "count": 1,
       "error": null,
@@ -43,7 +43,7 @@
     },
     "konstanz": {
       "source": "https://stellen.uni-konstanz.de/site/v2/de/professuren.html",
-      "retrieved_at_utc": "2026-10-13T08:55:20+00:00",
+      "retrieved_at_utc": "2026-10-13T08:56:44+00:00",
       "ok": false,
       "count": null,
       "error": "ValueError: B-ITE widget loaded but did not expose any vacancy links",
@@ -51,7 +51,7 @@
     },
     "hu-berlin": {
       "source": "https://hu-berlin.stellenticket.de/de/offers/",
-      "retrieved_at_utc": "2026-10-13T08:55:20+00:00",
+      "retrieved_at_utc": "2026-10-13T08:56:44+00:00",
       "ok": true,
       "count": 95,
       "error": null,
@@ -59,7 +59,7 @@
     },
     "uzh": {
       "source": "https://ohws.prospective.ch/public/v2/careercenter/1002007/?lang=en",
-      "retrieved_at_utc": "2026-10-13T08:55:20+00:00",
+      "retrieved_at_utc": "2026-10-13T08:56:44+00:00",
       "ok": true,
       "count": 127,
       "error": null,
@@ -67,7 +67,7 @@
     },
     "unibe": {
       "source": "https://unibe.prospective.ch/?lang=en",
-      "retrieved_at_utc": "2026-10-13T08:55:20+00:00",
+      "retrieved_at_utc": "2026-10-13T08:56:44+00:00",
       "ok": true,
       "count": 53,
       "error": null,
@@ -75,7 +75,7 @@
     },
     "unibas": {
       "source": "https://jobs.unibas.ch/?lang=en",
-      "retrieved_at_utc": "2026-10-13T08:55:20+00:00",
+      "retrieved_at_utc": "2026-10-13T08:56:44+00:00",
       "ok": true,
       "count": 45,
       "error": null,
@@ -83,7 +83,7 @@
     },
     "unil": {
       "source": "https://joblens.ch/unil",
-      "retrieved_at_utc": "2026-10-13T08:55:20+00:00",
+      "retrieved_at_utc": "2026-10-13T08:56:44+00:00",
       "ok": true,
       "count": 20,
       "error": null,
